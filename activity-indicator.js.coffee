@@ -90,24 +90,21 @@ $ ->
     render = (target, d) ->
       innerRadius = d.width*2 + d.space
       r = (innerRadius + d.length + Math.ceil(d.width / 2) + 1)
-      
       el = svg().width(r*2).height(r*2)
-      
       g = svg('g', 
         'stroke-width': d.width
         'stroke-linecap': 'round'
         stroke: d.color
       ).appendTo(svg('g', transform: "translate(#{r},#{r})").appendTo(el))
-      
       for i in [0..d.segments]
-        g.append(svg('line',
+        opt = 
           x1: 0
           y1: innerRadius
           x2: 0
           y2: innerRadius + d.length
           transform: "rotate(#{(360 / d.segments * i)}, 0, 0)"
           opacity: $.fn.activity.getOpacity(d, i)
-        ))
+        g.append(svg('line', opt))
       return $('<div>').append(el).width(2*r).height(2*r)
         
     # Check if Webkit CSS animations are available, as they work much better on the iPad
@@ -130,7 +127,8 @@ $ ->
             value = "% { -webkit-transform:rotate(#{Math.round(360 / steps * i)}deg) }\n"
             rule += p1 + value + p2 + value 
           rule += '100% { -webkit-transform:rotate(100deg) }\n}'
-          document.styleSheets[0].insertRule(rule)
+          style_sheet = document.styleSheets[0]
+          style_sheet.insertRule(rule, style_sheet.cssRules.length)
           animations[steps] = name
         el.css('-webkit-animation', "#{animations[steps]} #{duration}s linear infinite")
     else
